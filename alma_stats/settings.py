@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'fake-key'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['185.47.167.143']
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 INSTALLED_APPS = [
