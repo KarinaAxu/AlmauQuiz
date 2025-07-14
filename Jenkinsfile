@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = 'venv'
-        DJANGO_SETTINGS_MODULE = 'AlmauQuiz.settings' // если нужно переопределить
+        DJANGO_SETTINGS_MODULE = 'alma_statistics.settings'
     }
 
     stages {
@@ -17,7 +16,7 @@ pipeline {
             steps {
                 sh 'python3 -m venv venv'
                 sh './venv/bin/pip install --upgrade pip'
-                sh './venv/bin/pip install -r requirements.txt || true'
+                sh './venv/bin/pip install -r requirements.txt'
             }
         }
 
@@ -38,8 +37,6 @@ pipeline {
                 sh './venv/bin/python manage.py collectstatic --noinput'
             }
         }
-
-        // Можно добавить деплой или публикацию артефактов
     }
 
     post {
@@ -51,4 +48,3 @@ pipeline {
         }
     }
 }
-  
