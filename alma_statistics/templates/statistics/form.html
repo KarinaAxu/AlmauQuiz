@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Подать заявку — AlmaU</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .form-container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+    h1 {
+      margin-bottom: 25px;
+      font-size: 26px;
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 500;
+    }
+    .required::after {
+      content: " *";
+      color: red;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 25px;
+      background-color: #4299e1;
+      color: white;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #3182ce;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    {% if success %}
+      <div style="background: #d4edda; color: #155724; padding: 20px; border: 1px solid #c3e6cb; border-radius: 10px; font-size: 18px; text-align: center;">
+        Заявка успешно отправлена!
+      </div>
+    {% else %}
+      <h1>Оставить заявку</h1>
+      <form action="/submit-form/" method="POST">
+        {% csrf_token %}
+        <label for="full_name" class="required">ФИО</label>
+        <input type="text" id="full_name" name="full_name" required>
+
+        <label for="phone" class="required">Номер телефона</label>
+        <input type="tel" id="phone" name="phone" placeholder="+7..." required>
+
+        <label for="source" class="required">Источник</label>
+        <select id="source" name="source" required>
+          <option value="">Выберите</option>
+          <option value="Instagram">Instagram</option>
+          <option value="Website">Website</option>
+          <option value="Facebook">Facebook</option>
+          <option value="Threads">Threads</option>
+        </select>
+
+        <label for="school" class="required">Школа</label>
+        <select id="school" name="school" required>
+          <option value="">Выберите</option>
+          <option value="Школа Цифровых Технологий">Школа Цифровых Технологий</option>
+          <option value="Школа Предпринимательства и инноваций">Школа Предпринимательства и инноваций</option>
+          <option value="Школа Менеджмента">Школа Менеджмента</option>
+          <option value="Школа Экономики и Финансов">Школа Экономики и Финансов</option>
+          <option value="Школа Политики и Права">Школа Политики и Права</option>
+          <option value="Школа Медиа и Кино">Школа Медиа и Кино</option>
+        </select>
+
+        <label for="city">Город</label>
+        <input type="text" id="city" name="city" placeholder="Введите город">
+
+        <button type="submit">Отправить</button>
+      </form>
+    {% endif %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Статистика - ALMAU</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f7fa;
+      height: 100vh;
+    }
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      border-bottom: 1px solid #eaeef2;
+      background: white;
+    }
+    .header img {
+      height: 40px;
+    }
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .user span {
+      font-size: 14px;
+      color: #4a5568;
+    }
+    .user img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .content {
+      flex: 1;
+      padding: 20px 30px;
+      overflow: auto;
+    }
+    .title-section {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      position: relative;
+    }
+    .title-section::before {
+      content: "";
+      position: absolute;
+      top: -20px;
+      left: 0;
+      right: 0;
+      border-top: 2px solid #e2e8f0;
+    }
+    .title-section::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    h1 {
+      margin: 0 0 15px 0;
+      font-size: 40px;
+      font-weight: 600;
+      color: #000000;
+    }
+    .filters-actions-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .filters-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+    }
+    .actions-container {
+      display: flex;
+      gap: 10px;
+    }
+    .custom-selector {
+      position: relative;
+    }
+    .selector-button, .action-btn {
+      padding: 8px 12px;
+      font-size: 13px;
+      background-color: #b8e4fc;
+      border: 1px solid #bee3f8;
+      border-radius: 20px;
+      color: #000000;
+      outline: none;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 150px;
+    }
+    .selector-button::after {
+      content: "▼";
+      font-size: 10px;
+      margin-left: 8px;
+    }
+    .selector-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100;
+      display: none;
+      overflow: hidden;
+      margin-top: 5px;
+      padding: 15px;
+    }
+    .selector-dropdown.show {
+      display: block;
+    }
+    .selector-item {
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .selector-item:hover {
+      background: #f0f7ff;
+    }
+    .selector-item.selected {
+      background: #b8e4fc;
+      font-weight: 500;
+    }
+    .date-picker-container {
+      position: relative;
+    }
+    .date-picker-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 280px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100;
+      display: none;
+      padding: 15px;
+      margin-top: 5px;
+    }
+    .date-picker-dropdown.show {
+      display: block;
+    }
+    .date-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .date-picker-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .date-picker-title {
+      font-weight: 500;
+    }
+    .date-picker-reset {
+      color: #4299e1;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .date-picker-reset:hover {
+      text-decoration: underline;
+    }
+    .date-range {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 10px;
+    }
+    .date-range-label {
+      font-size: 12px;
+      margin-bottom: 5px;
+      color: #718096;
+    }
+    .date-input {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      width: 80%;
+    }
+    .date-apply {
+      background: #4299e1;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .date-apply:hover {
+      background: #3182ce;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      font-size: 14px;
+      table-layout: fixed;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
+      text-align: left;
+      word-wrap: break-word;
+    }
+    th {
+      background-color: #f8fafc;
+      font-weight: 500;
+      color: #000000;
+      position: sticky;
+      top: 0;
+      border-bottom-width: 2px;
+    }
+    tr:hover td {
+      background-color: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="https://almau.edu.kz/wp-content/uploads/2024/08/ecfc1082c75333dc240d67aae3ee8702.png" alt="ALMA Logo">
+      <div class="user">
+        <img src="https://cdn-icons-png.flaticon.com/256/6522/6522516.png" alt="Профиль">
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="title-section">
+        <h1>Статистика</h1>
+        <div class="filters-actions-wrapper">
+          <div class="filters-container">
+            <div class="custom-selector">
+              <button class="selector-button" id="program-selector">Образовательная программа</button>
+              <div class="selector-dropdown">
+                <div class="selector-item" data-value="Школа Цифровых Технологий">Школа Цифровых Технологий</div>
+                <div class="selector-item" data-value="Школа Предпринимательства и инноваций">Школа Предпринимательства и инноваций</div>
+                <div class="selector-item" data-value="Школа Менеджмента">Школа Менеджмента</div>
+                <div class="selector-item" data-value="Школа Экономики и Финансов">Школа Экономики и Финансов</div>
+                <div class="selector-item" data-value="Школа Политики и Права">Школа Политики и Права</div>
+                <div class="selector-item" data-value="Школа Медиа и Кино">Школа Медиа и Кино</div>
+              </div>
+            </div>
+
+            <div class="date-picker-container">
+              <button class="selector-button period-registration-btn">Период регистрации</button>
+              <div class="date-picker-dropdown">
+                <div class="date-picker">
+                  <div class="date-picker-header">
+                    <div class="date-picker-title">Выберите Дату</div>
+                    <div class="date-picker-reset">Сбросить</div>
+                  </div>
+                  <div class="date-range">
+                    <div style="flex: 1;">
+                      <div class="date-range-label">От</div>
+                      <input type="date" class="date-input" value="2025-06-01">
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="date-range-label">До</div>
+                      <input type="date" class="date-input" value="2025-06-30">
+                    </div>
+                  </div>
+                  <button class="date-apply">Применить</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="custom-selector">
+              <button class="selector-button" id="source-selector">Источник</button>
+              <div class="selector-dropdown">
+                <div class="selector-item" data-value="Instagram">Instagram</div>
+                <div class="selector-item" data-value="Website">Website</div>
+                <div class="selector-item" data-value="Facebook">Facebook</div>
+                <div class="selector-item" data-value="Threads">Threads</div>
+              </div>
+            </div>
+          </div>
+          <div class="actions-container">
+            <button id="reset-filters" class="action-btn">Сбросить фильтры</button>
+            <button id="download-excel" class="action-btn">Скачать Excel</button>
+          </div>
+        </div>
+      </div>
+
+
+      <table id="applicants-table">
+        <thead>
+            <tr>
+                <th style="width: 5%">№</th>
+                <th style="width: 12%">Фамилия</th>
+                <th style="width: 10%">Имя</th>
+                <th style="width: 15%">Отчество</th>
+                <th style="width: 12%">Номер телефона</th>
+                <th style="width: 10%">Номер заявки</th>
+                <th style="width: 12%">Дата регистрации</th>
+                <th style="width: 14%">Время регистрации</th>
+                <th style="width: 12%">Город</th>
+                <th style="width: 15%">Школа</th>
+                <th style="width: 10%">Источник</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for applicant in applicants %}
+            <tr data-program="{{ applicant.school|default_if_none:'' }}" 
+                data-source="{{ applicant.source|default_if_none:'' }}" 
+                data-date="{{ applicant.registration_date|date:'Y-m-d' }}">
+                <td>{{ forloop.counter }}</td>
+                <td>{{ applicant.last_name }}</td>
+                <td>{{ applicant.first_name }}</td>
+                <td>{{ applicant.middle_name }}</td>
+                <td class="phone-number">{{ applicant.phone_number }}</td>
+                <td>{{ applicant.application_number }}</td>
+                <td>{{ applicant.registration_date|date:"d.m.Y" }}</td>
+                <td>{{ applicant.registration_date }} {{ applicant.registration_time }} UTC+5</td>
+                <td>{{ applicant.city }}</td>
+                <td>{{ applicant.school }}</td>
+                <td>{{ applicant.source }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      function setupDropdown(buttonId) {
+        const button = document.getElementById(buttonId);
+        const dropdown = button.nextElementSibling;
+
+        button.addEventListener('click', (e) => {
+          e.stopPropagation();
+          closeAllDropdowns();
+          dropdown.classList.toggle('show');
+        });
+
+        dropdown.querySelectorAll('.selector-item').forEach(item => {
+          item.addEventListener('click', () => {
+            dropdown.querySelectorAll('.selector-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            button.textContent = item.textContent; 
+            dropdown.classList.remove('show');
+            filterTable();
+          });
+        });
+      }
+
+      function setupDatePicker() {
+        const button = document.querySelector('.period-registration-btn');
+        const dropdown = document.querySelector('.date-picker-dropdown');
+        const applyBtn = dropdown.querySelector('.date-apply');
+        const resetBtn = dropdown.querySelector('.date-picker-reset');
+
+        button.addEventListener('click', (e) => {
+          e.stopPropagation();
+          closeAllDropdowns();
+          dropdown.classList.toggle('show');
+        });
+
+        applyBtn.addEventListener('click', () => {
+          dropdown.classList.remove('show');
+          button.textContent = `Выбран период`;
+          filterTable();
+        });
+
+        resetBtn.addEventListener('click', () => {
+          dropdown.querySelectorAll('.date-input').forEach(input => input.value = "");
+          button.textContent = `Период регистрации`;
+          dropdown.classList.remove('show');
+          filterTable();
+        });
+      }
+
+      function closeAllDropdowns() {
+        document.querySelectorAll('.selector-dropdown, .date-picker-dropdown').forEach(d => d.classList.remove('show'));
+      }
+
+      document.addEventListener('click', closeAllDropdowns);
+
+      setupDropdown('program-selector');
+      setupDropdown('source-selector');
+      setupDatePicker();
+
+      function normalizeTextContent(text) {
+        return text.trim();
+      }
+
+      function filterTable() {
+      const programRaw = document.querySelector('#program-selector').textContent;
+      const sourceRaw = document.querySelector('#source-selector').textContent;
+      const program = normalizeTextContent(programRaw);
+      const source = normalizeTextContent(sourceRaw);
+
+      const dateInputs = document.querySelectorAll('.date-input');
+      const dateFrom = dateInputs[0].value ? new Date(dateInputs[0].value) : null;
+      const dateTo = dateInputs[1].value ? new Date(dateInputs[1].value) : null;
+
+      let visibleIndex = 1;
+      document.querySelectorAll('#applicants-table tbody tr').forEach(row => {
+      const rowProgram = row.dataset.program || row.querySelector('td:nth-child(10)')?.textContent.trim();
+      const rowSource = row.dataset.source || row.querySelector('td:nth-child(11)')?.textContent.trim();
+      const rowDateStr = row.dataset.date || row.querySelector('td:nth-child(7)')?.textContent.trim().split('.').reverse().join('-');
+      const rowDate = rowDateStr ? new Date(rowDateStr) : null;
+
+      let visible = true;
+
+    if (program !== "Образовательная программа" && program !== "Все программы" && rowProgram !== program) {
+      visible = false;
+    }
+    if (source !== "Источник" && source !== "Все источники" && rowSource !== source) {
+      visible = false;
+    }
+    if (dateFrom && (!rowDate || rowDate < dateFrom)) {
+      visible = false;
+    }
+    if (dateTo && (!rowDate || rowDate > dateTo)) {
+      visible = false;
+    }
+
+    if (visible) {
+      row.style.display = "";
+      row.querySelector('td:nth-child(1)').textContent = visibleIndex; 
+      visibleIndex++;
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
+
+
+      document.getElementById('reset-filters').addEventListener('click', () => {
+        document.querySelector('#program-selector').textContent = `Образовательная программа`;
+        document.querySelector('#source-selector').textContent = `Источник`;
+        document.querySelector('.period-registration-btn').textContent = `Период регистрации`;
+
+        document.querySelectorAll('.selector-item').forEach(item => item.classList.remove('selected'));
+        document.querySelectorAll('.date-input').forEach(input => input.value = "");
+
+        document.querySelectorAll('#applicants-table tbody tr').forEach(row => {
+          row.style.display = "";
+        });
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('download-excel').addEventListener('click', () => {
+        const table = document.getElementById('applicants-table');
+        const workbook = XLSX.utils.table_to_book(table, { sheet: "Статистика" });
+        XLSX.writeFile(workbook, 'Статистика_ALMAU.xlsx');
+      });
+    });
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</body>
+</html>

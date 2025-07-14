@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Твоя викторина в AlmaU</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .quiz-container {
+      background: #fff;
+      padding: 50px;
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 550px;
+      text-align: center;
+      position: relative;
+    }
+    h1 {
+      margin-bottom: 25px;
+      font-size: 30px;
+      color: #333;
+    }
+    .question {
+      font-size: 22px;
+      margin-bottom: 25px;
+    }
+    .answers button {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      margin: 12px 0;
+      padding: 18px;
+      background: #b8e4fc;
+      border: 1px solid #bee3f8;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      transition: all 0.2s;
+    }
+    .answers button:hover {
+      background: #a0d8f5;
+      transform: scale(1.03);
+    }
+    .answers .icon {
+      font-size: 28px;
+      margin-right: 12px;
+    }
+    .final-screen, .quiz-content {
+      display: none;
+    }
+    .final-screen h2 {
+      margin-bottom: 20px;
+    }
+
+    .btn-action, .btn-action:link, .btn-action:visited {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #4299e1;
+  color: #fff;
+  font-size: 20px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s;
+  appearance: none; 
+  -webkit-appearance: none;
+  align-items: center;        
+  justify-content: center; 
+}
+    .btn-action:hover {
+      background: #3182ce;
+      transform: scale(1.05);
+    }
+
+    .start-screen button {
+      margin-top: 25px;
+      padding: 18px 30px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #4299e1;
+      color: #fff;
+      font-size: 20px;
+      transition: all 0.2s;
+    }
+    .start-screen button:hover {
+      background: #3182ce;
+      transform: scale(1.05);
+    }
+    .logo {
+      width: 160px;
+      margin-bottom: 25px;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div class="start-screen" id="start-screen">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZOb1hNC5C3_2eDvn5YO-X85RDULQ5eJa6_Q&s" alt="ALMA Logo" class="logo">
+      <h1>Узнай, кто ты в AlmaU!</h1>
+      <button id="start-button">Начать квиз</button>
+    </div>
+    <div class="quiz-content" id="quiz-content">
+      <div class="question" id="question"></div>
+      <div class="answers" id="answers"></div>
+    </div>
+    <div class="final-screen" id="final-screen">
+      <h2>Ты отлично справился!</h2>
+      <p>Кажется, AlmaU тебе идеально подходит — пора действовать!</p>
+      <a href="/form" class="btn-action">
+        📨 <span>Оставить заявку</span>
+      </a>
+      <a href="/media/guide.pdf" download class="btn-action">
+        📥 <span>Скачать гайд</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    let quizData = [];
+    let currentQuestion = 0;
+    const questionEl = document.getElementById('question');
+    const answersEl = document.getElementById('answers');
+    const finalScreen = document.getElementById('final-screen');
+    const quizContent = document.getElementById('quiz-content');
+    const startScreen = document.getElementById('start-screen');
+    const startButton = document.getElementById('start-button');
+    let results = [];
+  
+    async function fetchQuiz() {
+      try {
+        const response = await fetch('/api/quiz/');
+        quizData = await response.json();
+        if (!quizData || quizData.length === 0) {
+          alert("Нет данных для квиза. Добавьте вопросы в админке.");
+          return;
+        }
+        startScreen.style.display = 'none';
+        quizContent.style.display = 'block';
+        showQuestion();
+      } catch (error) {
+        console.error('Ошибка загрузки квиза', error);
+        alert("Ошибка загрузки квиза. Проверь API.");
+      }
+    }
+  
+    function showQuestion() {
+      const q = quizData[currentQuestion];
+      questionEl.textContent = q.question;
+      answersEl.innerHTML = '';
+      q.answers.forEach(answer => {
+        const btn = document.createElement('button');
+        btn.innerHTML = `<span class="icon">${answer.icon}</span>${answer.text}`;
+        btn.onclick = () => nextQuestion(answer.text);
+        answersEl.appendChild(btn);
+      });
+    }
+  
+    function nextQuestion(selectedAnswer) {
+      results.push({ question: quizData[currentQuestion].question, answer: selectedAnswer });
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        showQuestion();
+      } else {
+        quizContent.style.display = 'none';
+        finalScreen.style.display = 'block';
+        sendResults();
+      }
+    }
+  
+    function sendResults() {
+      console.log('Отправка результатов:', results);
+      fetch('/quiz/save/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: results })
+      }).then(response => {
+        if (response.ok) {
+          console.log("Результаты успешно сохранены");
+        } else {
+          console.error("Ошибка сохранения результатов");
+        }
+      });
+    }
+  
+    startButton.addEventListener('click', fetchQuiz);
+  </script>
+</body>
+</html>
