@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DJANGO_SETTINGS_MODULE = 'alma_statistics.settings'
+        DJANGO_SETTINGS_MODULE = 'alma_stats.settings'
     }
 
     stages {
